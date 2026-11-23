@@ -1,7 +1,0 @@
-{
-  "name": "Triplex Check",
-  "id": "975662140841905723",
-  "editorType": ["pixso"],
-  "main": "./main.js",
-  "ui": "./ui.html"
-}
