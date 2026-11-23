@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Triplex Check</title>
+  <style>:root {
+  color-scheme: light;
+  --base: #1f1f22;
+  --muted: #57637f;
+  --brand: #007777;
+  --brand-hover: #006063;
+  --brand-active: #0b3a3c;
+  --focus: #0a43b0;
+  --link: #007777; /* Styles brand/30 */
+  --link-hover: #006063; /* brand/20 */
+  --link-active: #0b3a3c; /* brand/10 */
+  --surface: #fff;
+  --soft: #f2f4f7;
+  --stroke: #d1d4dc;
+  --warn: #fff4db;
+  --warn-text: #4f3e3b;
+  font-family: 'SB Sans Text', 'Segoe UI', Arial, sans-serif;
+  color: var(--base);
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 20px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; height: 100vh; display: flex; flex-direction: column; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--stroke); }
+h1, h2, h3 { margin: 0; font-family: 'SB Sans Display', 'SB Sans Text', 'Segoe UI', sans-serif; font-weight: 600; }
+h1 { font-size: 20px; line-height: 28px; }
+h2 { font-size: 24px; line-height: 32px; margin-bottom: 12px; overflow-wrap: anywhere; }
+h3 { font-size: 16px; margin: 20px 0 4px; }
+p { margin: 0 0 12px; overflow-wrap: anywhere; }
+.muted, small { color: var(--muted); }
+main { flex: 1; min-height: 0; overflow: auto; padding: 20px; scrollbar-gutter: stable; }
+footer { display: flex; gap: 8px; align-items: stretch; padding: 12px 20px; border-top: 1px solid var(--stroke); background: var(--surface); }
+footer .primary { flex: 1; }
+button, select { font: inherit; }
+button { cursor: pointer; border: 0; border-radius: 8px; font-weight: 600; min-height: 40px; padding: 8px 16px; }
+.primary { color: white; background: var(--brand); }
+.primary:hover:not(:disabled) { background: var(--brand-hover); }
+.primary:active:not(:disabled) { background: var(--brand-active); }
+.secondary { background: var(--soft); color: var(--base); }
+.secondary:hover, .quiet:hover, .icon:hover { background: #eaedf1; }
+.secondary:active, .quiet:active, .icon:active { background: #dfe2e7; }
+.quiet, .icon { background: transparent; color: var(--muted); }
+.quiet { min-height: 28px; padding: 3px 8px; }
+.icon { border: 1px solid var(--stroke); padding: 0; min-height: 28px; width: 28px; font-size: 16px; flex: 0 0 28px; }
+button:disabled { cursor: default; background: #eaedf1; color: var(--muted); }
+#apply:disabled { background: #eaedf1; color: var(--muted); cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.link { color: var(--link); font-size: 14px; line-height: 20px; font-weight: 400; text-decoration: none; text-underline-offset: 3px; }
+.link:hover { color: var(--link-hover); text-decoration: underline; }
+.link:active { color: var(--link-active); }
+.link-button { min-height: 28px; padding: 3px 0; border-radius: 0; background: transparent; }
+.link-button:hover, .link-button:active { background: transparent; }
+fieldset { padding: 0; margin: 0; border: 0; }
+.scopes { display: grid; gap: 8px; }
+#start-contexts { margin-top: 16px; }
+.scopes label { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--stroke); border-radius: 12px; cursor: pointer; }
+.scopes label:has(:checked) { border-color: var(--brand); background: #e3fffa; }
+.scopes label:has(:disabled) { cursor: default; background: var(--soft); }
+small { display: block; font-size: 12px; line-height: 16px; margin-top: 2px; }
+input[type='radio'], input[type='checkbox'] { accent-color: var(--brand); width: 16px; height: 16px; margin: 0; flex: 0 0 16px; }
+.notice { padding: 10px 12px; background: var(--soft); border-radius: 8px; margin: 0 0 12px; }
+#limitations, #message { background: var(--warn); color: var(--warn-text); }
+#message { padding: 8px 20px; }
+summary { cursor: pointer; font-weight: 600; }
+ul { margin: 8px 0 0; padding-left: 18px; }
+li { overflow-wrap: anywhere; }
+.issue-list { list-style: none; padding: 0; margin-top: 12px; }
+.issue { display: grid; grid-template-columns: 20px minmax(0,1fr) 28px; gap: 9px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--stroke); }
+.issue input { margin-top: 3px; }
+.issue-content { min-width: 0; }
+.issue-title, .issue-path, .issue-note { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.issue p { margin: 4px 0 0; }
+.progress-row { display: flex; justify-content: space-between; gap: 8px; }
+progress { width: 100%; height: 4px; display: block; margin: 8px 0; border: 0; background: var(--soft); accent-color: var(--brand); border-radius: 4px; overflow: hidden; }
+progress::-webkit-progress-bar { background: #dfe2e7; }
+progress::-webkit-progress-value { background: var(--brand); }
+progress:not([value]) { background: repeating-linear-gradient(115deg, #a8f5e9, #a8f5e9 12px, #e3fffa 12px, #e3fffa 24px); }
+#secondary { margin-top: 22px; }
+select { display: block; margin: 4px 0 8px; min-width: 0; min-height: 36px; width: 100%; color: var(--base); background: var(--surface); border: 1px solid var(--stroke); border-radius: 8px; padding: 3px 6px; }
+.context-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; padding-top: 8px; }
+.context-controls label:first-child { grid-column: 1 / -1; }
+.export-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+dialog { color: var(--base); border: 1px solid var(--stroke); border-radius: 16px; width: calc(100% - 28px); max-width: 520px; padding: 16px; max-height: calc(100% - 28px); overflow: auto; }
+dialog::backdrop { background: #11182055; }
+.dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+dt { font-weight: 600; }
+dd { margin: 0 0 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+#alternatives { margin: 16px 0 12px; }
+#alternatives legend { font-weight: 600; }
+#choice-list label { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>
+</head>
+<body>
+  <header class="header">
+    <h1>Triplex Check</h1>
+    <button type="button" class="link link-button" id="sources-button">Источники</button>
+  </header>
+  <div id="message" role="alert" hidden></div>
+  <main id="content">
+    <section id="start">
+      <h2>Что проверить</h2>
+      <fieldset class="scopes">
+        <legend class="sr-only">Область проверки</legend>
+        <label><input type="radio" name="scope" value="page" checked><span>Вся страница<small>Текущая страница Pixso</small></span></label>
+        <label><input type="radio" name="scope" value="file"><span>Весь файл<small>Все страницы открытого документа</small></span></label>
+        <label><input type="radio" name="scope" value="frames" aria-describedby="selection"><span>Выделенные фреймы<small id="selection">Проверяем выделение…</small></span></label>
+      </fieldset>
+      <details id="start-contexts" class="notice" open>
+        <summary>Платформа и тема фреймов</summary>
+        <div class="context-controls">
+          <label>Фрейм<select id="start-frame"></select></label>
+          <label>Платформа<select id="start-platform"><option value="">Автоматически</option><option>Web</option><option>Mobile</option><option>Super</option></select></label>
+          <label>Тема<select id="start-theme"><option value="">Автоматически</option><option value="Light">Светлая</option><option value="Dark">Тёмная</option></select></label>
+        </div>
+        <p id="start-context-empty" class="muted" hidden>В выбранной области нет фреймов.</p>
+        <button id="save-start-context" class="secondary">Сохранить настройки</button>
+        <small id="start-context-status" role="status"></small>
+      </details>
+    </section>
+    <section id="progress-panel" aria-labelledby="progress-title" hidden>
+      <h2 id="progress-title">Проверяем макет</h2>
+      <div class="progress-row"><span id="stage" aria-live="polite"></span><strong id="percent"></strong></div>
+      <progress id="progress" aria-labelledby="stage"></progress>
+      <p id="processed" class="muted"></p>
+      <div id="secondary" hidden>
+        <div class="progress-row"><span id="secondary-stage">Проверяем изменения</span><strong id="secondary-percent"></strong></div>
+        <progress id="secondary-progress" aria-labelledby="secondary-stage"></progress>
+        <p id="secondary-processed" class="muted"></p>
+      </div>
+    </section>
+    <section id="report" hidden>
+      <h2 id="result-title" tabindex="-1"></h2>
+      <p id="summary" class="muted"></p>
+      <details id="batch-outcome" class="notice" hidden><summary>Результат применения</summary><ul id="batch-list"></ul></details>
+      <details id="contexts" class="notice" hidden>
+        <summary>Платформа и тема фреймов</summary>
+        <div class="context-controls">
+          <label>Фрейм<select id="context-frame"></select></label>
+          <label>Платформа<select id="platform"><option value="">Автоматически</option><option>Web</option><option>Mobile</option><option>Super</option></select></label>
+          <label>Тема<select id="theme"><option value="">Автоматически</option><option value="Light">Светлая</option><option value="Dark">Тёмная</option></select></label>
+        </div>
+        <button id="set-context" class="secondary">Уточнить и проверить</button>
+      </details>
+      <ul id="issues" class="issue-list" aria-label="Замечания"></ul>
+    </section>
+    <section id="sources" hidden>
+      <h2>Эталонный каталог</h2>
+      <p id="version" class="muted"></p>
+      <p id="reference-summary" class="notice"></p>
+      <details id="limitations" class="notice" hidden><summary>Диагностика источников</summary><ul id="gap-list"></ul></details>
+      <details class="notice" open><summary>Файлы Pixso</summary><ul id="libraries"></ul></details>
+      <details class="notice"><summary>Разделы Triplex.Next</summary><ul id="doc-coverage"></ul></details>
+      <details class="notice"><summary>Противоречия в спецификациях</summary><ul id="conflicts"></ul></details>
+      <h3>Выгрузка эталонов</h3>
+      <p class="muted">Для выгрузки страниц откройте эталонный файл в Pixso. JSON сохраняется локально.</p>
+      <label>Файл каталога<select id="export-source"></select></label>
+      <div class="export-controls">
+        <button id="export-opened" class="secondary">Открытый файл</button>
+        <button id="export-published" class="secondary">Опубликованная библиотека</button>
+      </div>
+      <button id="export-all" class="secondary">Проверить доступ к 10 публикациям</button>
+      <button id="export-download" class="primary" hidden>Сохранить JSON</button>
+    </section>
+  </main>
+  <footer id="footer">
+    <button id="run" class="primary">Проверить макет</button>
+    <button id="back" class="secondary" hidden>Новая проверка</button>
+    <button id="apply" class="primary" hidden disabled>Исправить выбранные · 0</button>
+  </footer>
+  <dialog id="details" aria-labelledby="detail-title">
+    <div class="dialog-heading"><h2 id="detail-title"></h2><button id="close-details" class="icon" aria-label="Закрыть подробности">×</button></div>
+    <p id="detail-path" class="muted"></p>
+    <dl id="detail-values"></dl>
+    <div id="detail-links"></div>
+    <fieldset id="alternatives" hidden><legend>Вариант исправления</legend><div id="choice-list"></div></fieldset>
+    <p id="detail-note"></p>
+  </dialog>
+  <script>                                                                                                
+
+                                                              
+                                                                             
+const $ =                                      (id        ) => document.getElementById(id)     ;
+const send = (type        , extra = {}) => parent.postMessage({pluginMessage: {type, ...extra}}, '*');
+const selected = new Set        ();
+const choices = new Map                ();
+const labels = {typography: 'типографика', colors: 'цвета', icons: 'иконки', spacing: 'отступы', sizes: 'размеры', components: 'компоненты'};
+let current       = 'start';
+let previous       = 'start';
+let findings          = [];
+let contexts                          = {};
+let activeDetail                   ;
+let exported                                             ;
+let exportJob = false;
+let batchJob = false;
+
+function element(tag        , label         )              {
+  const item = document.createElement(tag);
+  if (label !== undefined) item.textContent = label;
+  return item;
+}
+
+function safeLink(label        , href        )              {
+  const link = element('a', label)                     ;
+  link.className = 'link';
+  if (/^https:\/\/(triplex-design\.ru|pixso\.net)\//.test(href)) {
+    link.href = href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+  return link;
+}
+
+function view(which      )       {
+  current = which;
+  for (const part of ['start', 'progress-panel', 'report', 'sources']) $(part).hidden = part !== which;
+  $('footer').hidden = which === 'progress-panel' || which === 'sources';
+  $('run').hidden = which !== 'start';
+  $('back').hidden = $('apply').hidden = which !== 'report';
+  $('sources-button').hidden = which === 'progress-panel';
+  $('sources-button').textContent = which === 'sources' ? 'К проверке' : 'Источники';
+  $('content').scrollTop = 0;
+}
+
+function message(text         )       {
+  $('message').textContent = text ?? '';
+  $('message').hidden = !text;
+}
+
+function renderProgress(progress          , secondary = false)       {
+  const prefix = secondary ? 'secondary-' : '';
+  const bar = $                     (`${prefix}progress`);
+  if (progress.total === undefined) bar.removeAttribute('value');
+  else { bar.max = progress.total || 1; bar.value = progress.total ? progress.done : 1; }
+  $(`${prefix}stage`).textContent = progress.stage;
+  $(`${prefix}percent`).textContent = progress.total === undefined ? '' : `${progress.total ? Math.floor(100 * progress.done / progress.total) : 100}%`;
+  $(`${prefix}processed`).textContent = progress.nodesTotal !== undefined ? `Слоёв прочитано: ${progress.nodesDone} из ${progress.nodesTotal}`
+    : progress.total === undefined ? `Найдено слоёв: ${progress.done}`
+    : `Обработано: ${progress.done} из ${progress.total}`;
+}
+
+function busy(stage        )       {
+  message();
+  $('secondary').hidden = true;
+  view('progress-panel');
+  renderProgress({stage, done: 0});
+}
+
+function renderApply()       {
+  const apply = $                   ('apply');
+  apply.disabled = !selected.size;
+  apply.textContent = `Исправить выбранные · ${selected.size}`;
+}
+
+function formatted(value         )         {
+  if (value === undefined || value === null || value === '') return 'Нет значения';
+  return typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
+}
+
+function renderDetails(issue       )       {
+  activeDetail = issue;
+  $('detail-title').textContent = issue.title;
+  $('detail-path').textContent = issue.path + (issue.range ? ` · символы ${issue.range.start + 1}–${issue.range.end}` : '');
+  $('detail-values').replaceChildren(...Object.entries({'Правило': issue.ruleId, 'Фактическое значение': issue.actual, 'Ожидаемое значение': issue.expected})
+    .flatMap(([key, value]) => [element('dt', key), element('dd', formatted(value))]));
+  $('detail-links').replaceChildren(...[issue.source, ...issue.related ?? []].map(source => {
+    const row = element('p');
+    row.append(safeLink(`Спецификация Triplex · ${source.version}`, source.url));
+    return row;
+  }));
+  $('detail-note').textContent = issue.detail;
+  $('alternatives').hidden = !issue.options.length;
+  $('choice-list').replaceChildren(...issue.options.map((option, index) => {
+    const label = element('label');
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'alternative'; radio.checked = choices.get(issue.id) === index;
+    radio.onchange = () => { choices.set(issue.id, index); paintRows(); };
+    label.append(radio, element('span', option.description));
+    return label;
+  }));
+  const dialog = $                   ('details');
+  if (!dialog.open) dialog.showModal();
+}
+
+function paintRows()       {
+  $('issues').replaceChildren(...findings.map((issue, index) => {
+    const item = element('li'); item.className = 'issue';
+    const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = selected.has(issue.id);
+    checkbox.disabled = issue.manual || !issue.options.length;
+    checkbox.setAttribute('aria-label', `Исправить «${issue.title}» · ${issue.path}`);
+    const center = element('div');
+    center.className = 'issue-content';
+    const link = element('a', issue.title)                     ;
+    link.className = 'link issue-title';
+    link.href = '#layer'; link.title = `${issue.title} · Перейти к слою`;
+    link.setAttribute('aria-label', `${issue.title}. Перейти к слою`);
+    link.onclick = event => { event.preventDefault(); send('goto', {id: issue.nodeId}); };
+    const path = element('small', issue.path);
+    path.className = 'issue-path'; path.title = issue.path;
+    center.append(link, path);
+    const description = element('p', checkbox.disabled ? 'Вручную' :
+      issue.options[choices.get(issue.id) ?? -1]?.description ?? 'Выберите вариант в подробностях');
+    description.className = 'issue-note'; description.title = description.textContent ?? '';
+    description.id = `issue-note-${index}`;
+    checkbox.setAttribute('aria-describedby', description.id);
+    checkbox.title = checkbox.disabled ? 'Требуется ручная правка. Причина — в подробностях.' : '';
+    center.append(description);
+    const info = element('button', 'ⓘ'); info.className = 'icon'; info.dataset.issue = issue.id;
+    info.title = 'Подробнее'; info.setAttribute('aria-label', `Подробнее · ${issue.title}`);
+    info.onclick = () => renderDetails(issue);
+    checkbox.onchange = () => {
+      if (checkbox.checked && !choices.has(issue.id)) {
+        checkbox.checked = false;
+        renderDetails(issue);
+        return;
+      }
+      if (checkbox.checked) selected.add(issue.id); else selected.delete(issue.id);
+      renderApply();
+    };
+    item.append(checkbox, center, info);
+    return item;
+  }));
+  renderApply();
+}
+
+function syncContext()       {
+  const id = $                   ('context-frame').value;
+  $                   ('platform').value = contexts[id]?.platform ?? '';
+  $                   ('theme').value = contexts[id]?.theme ?? '';
+}
+
+function showReport(report        , frames         , context                         , batch        )       {
+  findings = report.issues;
+  contexts = context;
+  const ids = new Set(findings.map(issue => issue.id));
+  for (const id of selected) if (!ids.has(id)) selected.delete(id);
+  for (const id of choices.keys()) if (!ids.has(id)) choices.delete(id);
+  for (const issue of findings) {
+    if (issue.options.length === 1) choices.set(issue.id, 0);
+    if (issue.options.length === 0 || !issue.options[choices.get(issue.id) ?? -1]) { selected.delete(issue.id); choices.delete(issue.id); }
+  }
+  const count = findings.filter(issue => issue.ruleId !== 'icons.unidentified-vector').length;
+  const ambiguous = findings.length - count;
+  const plural = count % 100 >= 11 && count % 100 <= 14 ? 'й' : count % 10 === 1 ? 'е' : count % 10 >= 2 && count % 10 <= 4 ? 'я' : 'й';
+  $('result-title').textContent = count ? `${count} несоответстви${plural}` : ambiguous ? 'Нужна ручная проверка'
+    : report.complete ? batch?.confirmed ? 'Все несоответствия исправлены' : 'Несоответствий не найдено'
+      : 'Проверка выполнена частично';
+  const performed = Object.entries(report.checks).flatMap(([key, checks]) => checks ? [`${labels[key                       ]} · ${checks}`] : []);
+  $('summary').textContent = [`Слоёв: ${report.nodes}.`, ...(ambiguous ? [`На ручную проверку: ${ambiguous}.`] : []),
+    performed.length ? `Проверки: ${performed.join(', ')}.` : 'Применимых подтверждённых правил для этой области нет.',
+    ...batch ? [`Подтверждено исправлений: ${batch.confirmed}. Новых замечаний: ${batch.introduced}.`] : []].join(' ');
+  $                    ('limitations').open = false;
+  $('limitations').hidden = report.complete;
+  $('gap-list').replaceChildren(...(report.gaps.length ? report.gaps : ['В выбранной области недостаточно данных для вывода.']).map(gap => element('li', gap)));
+  $('batch-outcome').hidden = !batch;
+  if (batch) {
+    $                    ('batch-outcome').open = batch.results.some(result => result.status !== 'written');
+    $('batch-list').replaceChildren(...batch.results.map(result => element('li', `${result.title} · ${result.path}. ${result.status === 'written' ? 'Исправление подтверждено.' : `${result.status === 'skipped' ? 'Пропущено' : 'Ошибка'}. ${result.reason}`}`)),
+      ...batch.confirmed ? [element('li', 'Пакет можно отменить через историю Pixso.')] : []);
+  }
+  const frameSelect = $                   ('context-frame');
+  const previousFrame = frameSelect.value;
+  frameSelect.replaceChildren(...frames.map(frame => new Option(frame.name, frame.id)));
+  if (frames.some(frame => frame.id === previousFrame)) frameSelect.value = previousFrame;
+  $('contexts').hidden = !frames.length;
+  syncContext();
+  paintRows();
+  view('report');
+  $('result-title').focus();
+}
+
+$('sources-button').onclick = () => {
+  if (current !== 'sources') { previous = current; view('sources'); }
+  else view(previous);
+};
+$('run').onclick = () => {
+  choices.clear(); selected.clear(); batchJob = false;
+  busy('Подсчитываем слои');
+  send('run', {scope: document.querySelector                  ('input[name="scope"]:checked')?.value});
+};
+$('back').onclick = () => { message(); view('start'); requestSetup(); $('run').focus(); };
+$('apply').onclick = () => {
+  const requests = [...selected].filter(id => choices.has(id)).map(id => ({id, option: choices.get(id)}));
+  if (!requests.length) return;
+  batchJob = true;
+  busy('Применяем исправления');
+  $('secondary').hidden = false;
+  renderProgress({stage: 'Проверяем изменения', done: 0, total: requests.length}, true);
+  send('apply', {requests});
+};
+$('close-details').onclick = () => $                   ('details').close();
+$('details').addEventListener('close', () => {
+  const buttons = [...document.querySelectorAll                   ('[data-issue]')];
+  buttons.find(button => button.dataset.issue === activeDetail?.id)?.focus();
+});
+$('context-frame').onchange = syncContext;
+function requestSetup()       {
+  send('setup', {scope: document.querySelector                  ('input[name="scope"]:checked')?.value ?? 'page'});
+}
+function syncStartContext()       {
+  const id = $                   ('start-frame').value;
+  $                   ('start-platform').value = contexts[id]?.platform ?? '';
+  $                   ('start-theme').value = contexts[id]?.theme ?? '';
+  $('start-context-status').textContent = '';
+}
+for (const radio of document.querySelectorAll                  ('input[name="scope"]')) radio.onchange = requestSetup;
+$('start-frame').onchange = syncStartContext;
+$('save-start-context').onclick = () => {
+  send('preset', {scope: document.querySelector                  ('input[name="scope"]:checked')?.value ?? 'page',
+    id: $                   ('start-frame').value, platform: $                   ('start-platform').value,
+    theme: $                   ('start-theme').value});
+};
+$('set-context').onclick = () => {
+  busy('Подсчитываем слои');
+  send('context', {id: $                   ('context-frame').value, platform: $                   ('platform').value, theme: $                   ('theme').value});
+};
+for (const mode of ['opened', 'published']) $('export-' + mode).onclick = () => {
+  exportJob = true;
+  $('export-download').hidden = true;
+  busy('Читаем эталон Pixso');
+  send('export', {id: $                   ('export-source').value, mode});
+};
+$('export-all').onclick = () => {
+  exportJob = true;
+  $('export-download').hidden = true;
+  busy('Читаем список библиотек Pixso');
+  send('export-all');
+};
+$('export-download').onclick = () => {
+  if (!exported) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(exported.output, null, 2) + '\n'], {type: 'application/json'}));
+  const link = document.createElement('a'); link.href = url; link.download = exported.name;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+};
+
+window.addEventListener('message', event => {
+  if (event.source !== parent && event.source !== window.top) return;
+  const data = event.data?.pluginMessage ?? event.data;
+  if (!data || typeof data.type !== 'string') return;
+  if (data.type === 'progress') renderProgress(data.progress, batchJob);
+  if (data.type === 'batch-progress') renderProgress(data.progress, data.progress.stage === 'Проверяем изменения');
+  if (data.type === 'report') { batchJob = false; showReport(data.report, data.frames, data.context, data.batch); }
+  if (data.type === 'setup') {
+    contexts = data.context;
+    const select = $                   ('start-frame');
+    const previousId = select.value;
+    select.replaceChildren(...data.frames.map((frame       ) => new Option(frame.name, frame.id)));
+    if (data.frames.some((frame       ) => frame.id === previousId)) select.value = previousId;
+    select.disabled = $                   ('save-start-context').disabled = !data.frames.length;
+    $('start-context-empty').hidden = !!data.frames.length;
+    syncStartContext();
+    if (data.saved) $('start-context-status').textContent = 'Настройки сохранены';
+  }
+  if (data.type === 'selection') {
+    const radio = document.querySelector                  ('input[value="frames"]') ;
+    radio.disabled = data.count === 0;
+    if (radio.disabled && radio.checked && current === 'start') document.querySelector                  ('input[value="page"]') .checked = true;
+    $('selection').textContent = data.count ? `Фреймов верхнего уровня: ${data.count}. Вложенные слои включены.` : 'В выделении нет фреймов';
+    if (current === 'start') requestSetup();
+  }
+  if (data.type === 'catalog') {
+    $('version').textContent = `Версия ${data.version}`;
+    const refs = data.referenceSummary;
+    $('reference-summary').textContent = refs?.files ? `Встроены JSON-эталоны: ${refs.files} файлов, ${refs.resources} записей. Правил по точным ключам эталонов: ${refs.rules}. Ожидают уточнения: ${refs.pending}. Ресурсов с подтверждённым ключом публикации: ${refs.publications}. Совпадение названия или цвета не подтверждает происхождение.` : 'Пользовательские JSON-эталоны ещё не подключены.';
+    if (data.sourcePriority?.primary === 'pixso-json') $('reference-summary').textContent += ' Главный источник значений — JSON Pixso. При расхождении с сайтом применяется JSON. Отдельный отчёт SOURCE-DISCREPANCIES.md приложен к сборке.';
+    const select = $                   ('export-source');
+    const libraries            = data.libraries.filter((library         ) => library.generation !== 'legacy');
+    select.replaceChildren(...libraries.map(source => new Option(source.name, source.id)));
+    $('libraries').replaceChildren(...libraries.map(source => {
+      const row = element('li'); const coverage = data.coverage.find((item              ) => item.id === source.id);
+      row.append(safeLink(source.name, source.url), element('small', coverage?.reason ?? coverage?.status));
+      return row;
+    }));
+    $('doc-coverage').replaceChildren(...data.coverage.filter((row              ) => row.id.startsWith('site:')).map((row                                                              ) => {
+      const item = element('li'); item.append(safeLink(row.name, row.url), element('small', row.reason ?? row.status)); return item;
+    }));
+    $('conflicts').replaceChildren(...data.conflicts.map((conflict                                               ) => {
+      const item = element('li', `${conflict.title}. ${conflict.note}`);
+      for (const [i, url] of conflict.urls.entries()) { item.append(' ', safeLink(`Спецификация ${i + 1}`, url)); }
+      return item;
+    }));
+  }
+  if (data.type === 'exported') {
+    exportJob = false; exported = data; view('sources'); $('export-download').hidden = false;
+    message(data.summary ?? `Подготовлено ресурсов: ${data.output.resources.length}. ${data.output.gaps.join(' ')}`);
+  }
+  if (data.type === 'error') {
+    if (data.recovery) { view(exportJob ? 'sources' : findings.length ? 'report' : 'start'); exportJob = batchJob = false; }
+    message(data.text);
+  }
+});
+send('ready');
+</script>
+</body>
+</html>
