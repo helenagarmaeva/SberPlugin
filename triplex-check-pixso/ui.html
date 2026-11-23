@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Triplex Check</title>
+  <style>:root {
+  color-scheme: light;
+  --base: #1f1f22;
+  --muted: #57637f;
+  --brand: #007777;
+  --brand-hover: #006063;
+  --brand-active: #0b3a3c;
+  --focus: #0a43b0;
+  --link: #007777; /* Styles brand/30 */
+  --link-hover: #006063; /* brand/20 */
+  --link-active: #0b3a3c; /* brand/10 */
+  --surface: #fff;
+  --soft: #f2f4f7;
+  --stroke: #d1d4dc;
+  --warn: #fff4db;
+  --warn-text: #4f3e3b;
+  font-family: 'SB Sans Text', 'Segoe UI', Arial, sans-serif;
+  color: var(--base);
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 20px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; height: 100vh; display: flex; flex-direction: column; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--stroke); }
+h1, h2, h3 { margin: 0; font-family: 'SB Sans Display', 'SB Sans Text', 'Segoe UI', sans-serif; font-weight: 600; }
+h1 { font-size: 20px; line-height: 28px; }
+h2 { font-size: 24px; line-height: 32px; margin-bottom: 12px; overflow-wrap: anywhere; }
+h3 { font-size: 16px; margin: 20px 0 4px; }
+p { margin: 0 0 12px; overflow-wrap: anywhere; }
+.muted, small { color: var(--muted); }
+main { flex: 1; min-height: 0; overflow: auto; padding: 20px; scrollbar-gutter: stable; }
+footer { display: flex; gap: 8px; align-items: stretch; padding: 12px 20px; border-top: 1px solid var(--stroke); background: var(--surface); }
+footer .primary { flex: 1; }
+button, select { font: inherit; }
+button { cursor: pointer; border: 0; border-radius: 8px; font-weight: 600; min-height: 40px; padding: 8px 16px; }
+.primary { color: white; background: var(--brand); }
+.primary:hover:not(:disabled) { background: var(--brand-hover); }
+.primary:active:not(:disabled) { background: var(--brand-active); }
+.secondary { background: var(--soft); color: var(--base); }
+.secondary:hover, .quiet:hover, .icon:hover { background: #eaedf1; }
+.secondary:active, .quiet:active, .icon:active { background: #dfe2e7; }
+.quiet, .icon { background: transparent; color: var(--muted); }
+.quiet { min-height: 28px; padding: 3px 8px; }
+.icon { border: 1px solid var(--stroke); padding: 0; min-height: 28px; width: 28px; font-size: 16px; flex: 0 0 28px; }
+button:disabled { cursor: default; background: #eaedf1; color: var(--muted); }
+#apply:disabled { background: #eaedf1; color: var(--muted); cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.link { color: var(--link); font-size: 14px; line-height: 20px; font-weight: 400; text-decoration: none; text-underline-offset: 3px; }
+.link:hover { color: var(--link-hover); text-decoration: underline; }
+.link:active { color: var(--link-active); }
+.link-button { min-height: 28px; padding: 3px 0; border-radius: 0; background: transparent; }
+.link-button:hover, .link-button:active { background: transparent; }
+fieldset { padding: 0; margin: 0; border: 0; }
+.scopes { display: grid; gap: 8px; }
+#start-contexts { margin-top: 16px; }
+.scopes label { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--stroke); border-radius: 12px; cursor: pointer; }
+.scopes label:has(:checked) { border-color: var(--brand); background: #e3fffa; }
+.scopes label:has(:disabled) { cursor: default; background: var(--soft); }
+small { display: block; font-size: 12px; line-height: 16px; margin-top: 2px; }
+input[type='radio'], input[type='checkbox'] { accent-color: var(--brand); width: 16px; height: 16px; margin: 0; flex: 0 0 16px; }
+.notice { padding: 10px 12px; background: var(--soft); border-radius: 8px; margin: 0 0 12px; }
+#limitations, #message { background: var(--warn); color: var(--warn-text); }
+#message { padding: 8px 20px; }
+summary { cursor: pointer; font-weight: 600; }
+ul { margin: 8px 0 0; padding-left: 18px; }
+li { overflow-wrap: anywhere; }
+.issue-list { list-style: none; padding: 0; margin-top: 12px; }
+.issue { display: grid; grid-template-columns: 20px minmax(0,1fr) 28px; gap: 9px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--stroke); }
+.issue input { margin-top: 3px; }
+.issue-content { min-width: 0; }
+.issue-title, .issue-path, .issue-note { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.issue p { margin: 4px 0 0; }
+.progress-row { display: flex; justify-content: space-between; gap: 8px; }
+progress { width: 100%; height: 4px; display: block; margin: 8px 0; border: 0; background: var(--soft); accent-color: var(--brand); border-radius: 4px; overflow: hidden; }
+progress::-webkit-progress-bar { background: #dfe2e7; }
+progress::-webkit-progress-value { background: var(--brand); }
+progress:not([value]) { background: repeating-linear-gradient(115deg, #a8f5e9, #a8f5e9 12px, #e3fffa 12px, #e3fffa 24px); }
+#secondary { margin-top: 22px; }
+select { display: block; margin: 4px 0 8px; min-width: 0; min-height: 36px; width: 100%; color: var(--base); background: var(--surface); border: 1px solid var(--stroke); border-radius: 8px; padding: 3px 6px; }
+.context-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; padding-top: 8px; }
+.context-controls label:first-child { grid-column: 1 / -1; }
+.export-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+dialog { color: var(--base); border: 1px solid var(--stroke); border-radius: 16px; width: calc(100% - 28px); max-width: 520px; padding: 16px; max-height: calc(100% - 28px); overflow: auto; }
+dialog::backdrop { background: #11182055; }
+.dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+dt { font-weight: 600; }
+dd { margin: 0 0 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+#alternatives { margin: 16px 0 12px; }
+#alternatives legend { font-weight: 600; }
+#choice-list label { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Triplex Web MD: Radio Group 24, Button 40, field 40. */
+.header { padding: 12px 16px; background: #303030; color: white; gap: 12px; }
+.brand-heading { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; min-width: 0; }
+.brand-icon { width: 32px; height: 24px; flex: none; }
+.header .link { color: #fff; font-size: 12px; }
+main { padding: 16px; }
+footer { padding: 12px 16px; gap: 12px; }
+.setup-top { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.setup-top label { min-width: 0; color: var(--muted); font-size: 12px; line-height: 16px; }
+.setup-top select { height: 40px; margin: 4px 0 0; border: 1px solid #d1d4dc; border-radius: 8px; padding: 0 12px; font-size: 14px; background-color: #f2f4f7; transition: background-color .12s, border-color .12s; }
+.setup-top select:hover:not(:disabled) { background-color: #eaedf1; border-color: #57637f; }
+.setup-top select:active:not(:disabled), .setup-top select:focus { background-color: white; border-color: #007777; }
+.setup-top select:disabled { background-color: #eaedf1; color: #9099ad; cursor: not-allowed; }
+#start h1 { font-size: 24px; line-height: 32px; margin-bottom: 8px; }
+.intro { color: var(--muted); font-size: 14px; line-height: 20px; margin-bottom: 24px; }
+.scope-title { font-size: 16px; line-height: 24px; margin-bottom: 12px; }
+.scopes { gap: 16px; }
+.scopes label { border: 0; border-radius: 0; padding: 0; gap: 12px; align-items: flex-start; min-height: 24px; }
+.scopes label:has(:checked), .scopes label:has(:disabled) { background: transparent; }
+.scopes input[type=radio] { appearance: none; width: 24px; height: 24px; flex-basis: 24px; border: 1.5px solid #9099ad; border-radius: 50%; background: white; display: grid; place-content: center; transition: border-color .12s, background-color .12s; }
+.scopes input[type=radio]::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: #007777; transform: scale(0); }
+.scopes input[type=radio]:checked { border-color: #007777; }
+.scopes input[type=radio]:checked::before { transform: scale(1); }
+.scopes label:hover input:not(:disabled) { border-color: #006063; background: #e3fffa; }
+.scopes label:active input:not(:disabled) { border-color: #0b3a3c; background: #c5faf1; }
+.scopes input[type=radio]:disabled { border-color: #d1d4dc; background: #eaedf1; }
+.scopes input[type=radio]:disabled::before { background: #9099ad; }
+.scopes label:has(:disabled) { color: #9099ad; }
+.scopes label span { padding-top: 2px; }
+.primary { min-height: 40px; border-radius: 8px; padding: 8px 20px; }
+.primary:focus-visible { outline-color: #0a43b0; }
+.primary:disabled { background: #eaedf1; color: #9099ad; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* Compact content toolbar; the only title bar is provided by Pixso. */
+.header { background: white; color: var(--base); border: 0; justify-content: space-between; padding: 0; margin-bottom: 8px; }
+.header h1 { font-size: 24px; line-height: 32px; white-space: nowrap; }
+.header .link-button { flex-shrink: 0; }
+.header .link { color: var(--link); font-size: 14px; }
+.header .link:hover { color: var(--link-hover); }
+.header .link:active { color: var(--link-active); }
+.field-dropdown { position: relative; margin-top: 4px; color: var(--base); }
+.field-trigger { position: relative; width: 100%; height: 40px; padding: 8px 36px 8px 12px; text-align: left; border: 1px solid var(--stroke); border-radius: 8px; background: var(--soft); color: var(--base); font-weight: 400; font-size: 14px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.field-trigger::after { content: ''; position: absolute; right: 14px; top: 50%; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.field-trigger:hover { background: #eaedf1; border-color: #9099ad; }
+.field-trigger:active { background: #dfe2e7; border-color: #57637f; }
+.field-trigger[aria-expanded=true] { background: white; border-color: #007777; }
+.field-trigger[aria-expanded=true]::after { transform: translateY(-25%) rotate(225deg); }
+.field-trigger:focus-visible { outline: 2px solid #0a43b0; outline-offset: 2px; }
+.field-options { position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; min-width: 100%; padding: 4px; border: 1px solid var(--stroke); border-radius: 8px; background: white; box-shadow: 0 8px 24px #1f1f221f; max-height: 340px; overflow-y: auto; font-size: 14px; line-height: 20px; }
+.field-options [role=option] { padding: 8px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+.field-options [aria-selected=true] { background: #e3fffa; color: #007777; }
+.field-options [role=option]:hover, .field-options .active-option { background: #eaedf1; }
+.field-options [role=option]:active { background: #dfe2e7; }
+.header { margin-bottom: 4px; }
+#content:has(#start:not([hidden])) { padding-top: 16px; }
+#sources-back { display: inline-block; margin-bottom: 12px; }
+#sources h2 { margin-bottom: 4px; }
+#version { margin-bottom: 24px; font-size: 14px; line-height: 20px; }
+#sources > details { background: white; border: 1px solid var(--stroke); border-radius: 8px; padding: 12px; }
+#sources summary { font-size: 14px; line-height: 20px; }
+#sources ul { list-style: none; margin: 8px 0 0; padding: 0; }
+#sources li { padding: 12px 0; border-bottom: 1px solid var(--stroke); }
+#sources li:last-child { border-bottom: 0; padding-bottom: 0; }
+#sources li:first-child { padding-top: 4px; }
+#sources li .link { display: block; }
+#sources li small { margin-top: 4px; }
+.source-actions { display: flex; gap: 12px; width: 100%; margin-top: 16px; }
+.source-actions button { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; }
+.screen-back, #sources-back { display: inline-block; margin: 0 0 12px; }
+#start .screen-title, #sources h2 { margin: 0 0 4px; font-size: 24px; line-height: 32px; }
+#start .intro, #sources #version { margin: 0 0 24px; font-size: 14px; line-height: 20px; }
+footer { justify-content: flex-end; flex-shrink: 0; flex-wrap: wrap; }
+footer button, footer .primary { flex: 0 1 auto; padding-left: 20px; padding-right: 20px; }
+#sources-footer { flex-wrap: nowrap; }
+#sources-footer button { min-width: 0; }
+</style>
+</head>
+<body>
+  <div id="message" role="alert" hidden></div>
+  <main id="content">
+    <section id="start">
+      <button type="button" class="link link-button screen-back" id="sources-button">Источники</button>
+      <h1 class="screen-title">Triplex Check</h1>
+      <p class="intro">Плагин для дизайн-ревью макетов</p>
+      <section class="setup-top" aria-label="Платформа и тема"><label>Платформа<select id="start-platform"><option value="">Автоматически</option><option>Web</option><option>Mobile</option><option>Super</option></select></label><label>Тема<select id="start-theme"><option value="">Автоматически</option><option value="Light">Светлая</option><option value="Dark">Тёмная</option></select></label></section><h2 class="scope-title">Область проверки</h2>
+      <fieldset class="scopes">
+        <legend class="sr-only">Область проверки</legend>
+        <label><input type="radio" name="scope" value="page" checked><span>Вся страница<small>Текущая страница Pixso</small></span></label>
+        <label><input type="radio" name="scope" value="file"><span>Весь файл<small>Все страницы открытого документа</small></span></label>
+        <label><input type="radio" name="scope" value="frames" aria-describedby="selection"><span>Выделенные фреймы<small id="selection">Проверяем выделение…</small></span></label>
+      </fieldset>
+
+    </section>
+    <section id="progress-panel" aria-labelledby="progress-title" hidden>
+      <h2 id="progress-title">Проверяем макет</h2>
+      <div class="progress-row"><span id="stage" aria-live="polite"></span><strong id="percent"></strong></div>
+      <progress id="progress" aria-labelledby="stage"></progress>
+      <p id="processed" class="muted"></p>
+      <div id="secondary" hidden>
+        <div class="progress-row"><span id="secondary-stage">Проверяем изменения</span><strong id="secondary-percent"></strong></div>
+        <progress id="secondary-progress" aria-labelledby="secondary-stage"></progress>
+        <p id="secondary-processed" class="muted"></p>
+      </div>
+    </section>
+    <section id="report" hidden>
+      <h2 id="result-title" tabindex="-1"></h2>
+      <p id="summary" class="muted"></p>
+      <details id="batch-outcome" class="notice" hidden><summary>Результат применения</summary><ul id="batch-list"></ul></details>
+<div hidden><select id="context-frame"></select><select id="platform"></select><select id="theme"></select><button id="set-context"></button><div id="contexts"></div></div>
+      <ul id="issues" class="issue-list" aria-label="Замечания"></ul>
+    </section>
+    <section id="sources" hidden>
+      <button type="button" class="link link-button" id="sources-back">К проверке</button>
+      <h2>Эталонный каталог</h2>
+      <p id="version" class="muted"></p>
+      <details id="limitations" class="notice" hidden><summary>Диагностика источников</summary><ul id="gap-list"></ul></details>
+      <details class="notice" open><summary>Файлы Pixso</summary><ul id="libraries"></ul></details>
+      <details class="notice"><summary>Разделы Triplex.Next</summary><ul id="doc-coverage"></ul></details>
+    </section>
+  </main>
+  <footer id="footer">
+    <button id="run" class="primary">Проверить макет</button>
+    <button id="back" class="secondary" hidden>Новая проверка</button>
+    <button id="apply" class="primary" hidden disabled>Исправить выбранные · 0</button>
+  </footer>
+  <footer id="sources-footer" hidden>
+    <button id="export-all" class="primary">Проверить доступ</button>
+    <button id="export-download" class="primary" hidden>Сохранить JSON</button>
+  </footer>
+  <dialog id="details" aria-labelledby="detail-title">
+    <div class="dialog-heading"><h2 id="detail-title"></h2><button id="close-details" class="icon" aria-label="Закрыть подробности">×</button></div>
+    <p id="detail-path" class="muted"></p>
+    <dl id="detail-values"></dl>
+    <div id="detail-links"></div>
+    <fieldset id="alternatives" hidden><legend>Вариант исправления</legend><div id="choice-list"></div></fieldset>
+    <p id="detail-note"></p>
+  </dialog>
+  <script>                                                                                                
+
+                                                              
+                                                                             
+const $ =                                      (id        ) => document.getElementById(id)     ;
+const send = (type        , extra = {}) => parent.postMessage({pluginMessage: {type, ...extra}}, '*');
+const selected = new Set        ();
+const choices = new Map                ();
+const labels = {typography: 'типографика', colors: 'цвета', icons: 'иконки', spacing: 'отступы', sizes: 'размеры', components: 'компоненты'};
+let current       = 'start';
+let previous       = 'start';
+let findings          = [];
+let contexts                          = {};
+let activeDetail                   ;
+let exported                                             ;
+let exportJob = false;
+let batchJob = false;
+
+function element(tag        , label         )              {
+  const item = document.createElement(tag);
+  if (label !== undefined) item.textContent = label;
+  return item;
+}
+
+function dropdown(id        )       {
+  const select = $                   (id);
+  const wrapper = element('div'); wrapper.className = 'field-dropdown';
+  const trigger = element('button')                     ;
+  trigger.type = 'button'; trigger.className = 'field-trigger';
+  trigger.setAttribute('role', 'combobox'); trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-haspopup', 'listbox');
+  trigger.setAttribute('aria-label', id === 'start-platform' ? 'Платформа' : 'Тема');
+  const list = element('div'); list.className = 'field-options'; list.id = `${id}-options`;
+  list.setAttribute('role', 'listbox'); list.hidden = true;
+  trigger.setAttribute('aria-controls', list.id);
+  const options = [...select.options];
+  let active = select.selectedIndex;
+  const close = () => { list.hidden = true; trigger.setAttribute('aria-expanded','false'); trigger.removeAttribute('aria-activedescendant'); };
+  const rows = options.map((option, i) => {
+    const row = element('div', option.text); row.id = `${id}-option-${i}`; row.setAttribute('role','option');
+    row.onmousedown = event => event.preventDefault();
+    row.onclick = () => { select.selectedIndex = i; trigger.textContent = option.text;
+      rows.forEach((item, j) => item.setAttribute('aria-selected', String(i === j)));
+      select.dispatchEvent(new Event('change', {bubbles:true})); close(); trigger.focus(); };
+    row.setAttribute('aria-selected', String(i === select.selectedIndex)); return row;
+  });
+  const highlight = () => { rows.forEach((row, i) => row.classList.toggle('active-option', i === active)); trigger.setAttribute('aria-activedescendant', rows[active].id); };
+  const open = () => { document.dispatchEvent(new Event('close-dropdowns')); list.hidden = false;
+    trigger.setAttribute('aria-expanded','true'); active = select.selectedIndex; highlight(); };
+  trigger.textContent = options[select.selectedIndex].text;
+  trigger.onclick = () => list.hidden ? open() : close();
+  trigger.onkeydown = event => {
+    if (['ArrowDown','ArrowUp','Home','End'].includes(event.key)) {
+      event.preventDefault(); if (list.hidden) { open(); return; }
+      active = event.key === 'Home' ? 0 : event.key === 'End' ? rows.length - 1 : (active + (event.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
+      highlight();
+    } else if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if(list.hidden) open(); else rows[active].click(); }
+    else if (event.key === 'Escape' || event.key === 'Tab') close();
+  };
+  document.addEventListener('close-dropdowns', close);
+  document.addEventListener('pointerdown', event => { if (!wrapper.contains(event.target        )) close(); });
+  list.append(...rows); select.after(wrapper); wrapper.append(trigger, list); select.hidden = true;
+}
+
+function safeLink(label        , href        )              {
+  const link = element('a', label)                     ;
+  link.className = 'link';
+  if (/^https:\/\/(triplex-design\.ru|pixso\.net)\//.test(href)) {
+    link.href = href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+  return link;
+}
+
+function view(which      )       {
+  current = which;
+  for (const part of ['start', 'progress-panel', 'report', 'sources']) $(part).hidden = part !== which;
+  $('footer').hidden = which === 'progress-panel' || which === 'sources';
+  $('sources-footer').hidden = which !== 'sources';
+  $('run').hidden = which !== 'start';
+  $('back').hidden = $('apply').hidden = which !== 'report';
+  $('content').scrollTop = 0;
+}
+
+function message(text         )       {
+  $('message').textContent = text ?? '';
+  $('message').hidden = !text;
+}
+
+function renderProgress(progress          , secondary = false)       {
+  const prefix = secondary ? 'secondary-' : '';
+  const bar = $                     (`${prefix}progress`);
+  if (progress.total === undefined) bar.removeAttribute('value');
+  else { bar.max = progress.total || 1; bar.value = progress.total ? progress.done : 1; }
+  $(`${prefix}stage`).textContent = progress.stage;
+  $(`${prefix}percent`).textContent = progress.total === undefined ? '' : `${progress.total ? Math.floor(100 * progress.done / progress.total) : 100}%`;
+  $(`${prefix}processed`).textContent = progress.nodesTotal !== undefined ? `Слоёв прочитано: ${progress.nodesDone} из ${progress.nodesTotal}`
+    : progress.total === undefined ? `Найдено слоёв: ${progress.done}`
+    : `Обработано: ${progress.done} из ${progress.total}`;
+}
+
+function busy(stage        )       {
+  message();
+  $('secondary').hidden = true;
+  view('progress-panel');
+  renderProgress({stage, done: 0});
+}
+
+function renderApply()       {
+  const apply = $                   ('apply');
+  apply.disabled = !selected.size;
+  apply.textContent = `Исправить выбранные · ${selected.size}`;
+}
+
+function formatted(value         )         {
+  if (value === undefined || value === null || value === '') return 'Нет значения';
+  return typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
+}
+
+function renderDetails(issue       )       {
+  activeDetail = issue;
+  $('detail-title').textContent = issue.title;
+  $('detail-path').textContent = issue.path + (issue.range ? ` · символы ${issue.range.start + 1}–${issue.range.end}` : '');
+  $('detail-values').replaceChildren(...Object.entries({'Правило': issue.ruleId, 'Фактическое значение': issue.actual, 'Ожидаемое значение': issue.expected})
+    .flatMap(([key, value]) => [element('dt', key), element('dd', formatted(value))]));
+  $('detail-links').replaceChildren(...[issue.source, ...issue.related ?? []].map(source => {
+    const row = element('p');
+    row.append(safeLink(`Спецификация Triplex · ${source.version}`, source.url));
+    return row;
+  }));
+  $('detail-note').textContent = issue.detail;
+  $('alternatives').hidden = !issue.options.length;
+  $('choice-list').replaceChildren(...issue.options.map((option, index) => {
+    const label = element('label');
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'alternative'; radio.checked = choices.get(issue.id) === index;
+    radio.onchange = () => { choices.set(issue.id, index); paintRows(); };
+    label.append(radio, element('span', option.description));
+    return label;
+  }));
+  const dialog = $                   ('details');
+  if (!dialog.open) dialog.showModal();
+}
+
+function paintRows()       {
+  $('issues').replaceChildren(...findings.map((issue, index) => {
+    const item = element('li'); item.className = 'issue';
+    const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = selected.has(issue.id);
+    checkbox.disabled = issue.manual || !issue.options.length;
+    checkbox.setAttribute('aria-label', `Исправить «${issue.title}» · ${issue.path}`);
+    const center = element('div');
+    center.className = 'issue-content';
+    const link = element('a', issue.title)                     ;
+    link.className = 'link issue-title';
+    link.href = '#layer'; link.title = `${issue.title} · Перейти к слою`;
+    link.setAttribute('aria-label', `${issue.title}. Перейти к слою`);
+    link.onclick = event => { event.preventDefault(); send('goto', {id: issue.nodeId}); };
+    const path = element('small', issue.path);
+    path.className = 'issue-path'; path.title = issue.path;
+    center.append(link, path);
+    const description = element('p', checkbox.disabled ? 'Вручную' :
+      issue.options[choices.get(issue.id) ?? -1]?.description ?? 'Выберите вариант в подробностях');
+    description.className = 'issue-note'; description.title = description.textContent ?? '';
+    description.id = `issue-note-${index}`;
+    checkbox.setAttribute('aria-describedby', description.id);
+    checkbox.title = checkbox.disabled ? 'Требуется ручная правка. Причина — в подробностях.' : '';
+    center.append(description);
+    const info = element('button', 'ⓘ'); info.className = 'icon'; info.dataset.issue = issue.id;
+    info.title = 'Подробнее'; info.setAttribute('aria-label', `Подробнее · ${issue.title}`);
+    info.onclick = () => renderDetails(issue);
+    checkbox.onchange = () => {
+      if (checkbox.checked && !choices.has(issue.id)) {
+        checkbox.checked = false;
+        renderDetails(issue);
+        return;
+      }
+      if (checkbox.checked) selected.add(issue.id); else selected.delete(issue.id);
+      renderApply();
+    };
+    item.append(checkbox, center, info);
+    return item;
+  }));
+  renderApply();
+}
+
+function syncContext()       {
+  const id = $                   ('context-frame').value;
+  $                   ('platform').value = contexts[id]?.platform ?? '';
+  $                   ('theme').value = contexts[id]?.theme ?? '';
+}
+
+function showReport(report        , frames         , context                         , batch        )       {
+  findings = report.issues;
+  contexts = context;
+  const ids = new Set(findings.map(issue => issue.id));
+  for (const id of selected) if (!ids.has(id)) selected.delete(id);
+  for (const id of choices.keys()) if (!ids.has(id)) choices.delete(id);
+  for (const issue of findings) {
+    if (issue.options.length === 1) choices.set(issue.id, 0);
+    if (issue.options.length === 0 || !issue.options[choices.get(issue.id) ?? -1]) { selected.delete(issue.id); choices.delete(issue.id); }
+  }
+  const count = findings.filter(issue => issue.ruleId !== 'icons.unidentified-vector').length;
+  const ambiguous = findings.length - count;
+  const plural = count % 100 >= 11 && count % 100 <= 14 ? 'й' : count % 10 === 1 ? 'е' : count % 10 >= 2 && count % 10 <= 4 ? 'я' : 'й';
+  $('result-title').textContent = count ? `${count} несоответстви${plural}` : ambiguous ? 'Нужна ручная проверка'
+    : report.complete ? batch?.confirmed ? 'Все несоответствия исправлены' : 'Несоответствий не найдено'
+      : 'Проверка выполнена частично';
+  const performed = Object.entries(report.checks).flatMap(([key, checks]) => checks ? [`${labels[key                       ]} · ${checks}`] : []);
+  $('summary').textContent = [`Слоёв: ${report.nodes}.`, ...(ambiguous ? [`На ручную проверку: ${ambiguous}.`] : []),
+    performed.length ? `Проверки: ${performed.join(', ')}.` : 'Применимых подтверждённых правил для этой области нет.',
+    ...batch ? [`Подтверждено исправлений: ${batch.confirmed}. Новых замечаний: ${batch.introduced}.`] : []].join(' ');
+  $                    ('limitations').open = false;
+  $('limitations').hidden = report.complete;
+  $('gap-list').replaceChildren(...(report.gaps.length ? report.gaps : ['В выбранной области недостаточно данных для вывода.']).map(gap => element('li', gap)));
+  $('batch-outcome').hidden = !batch;
+  if (batch) {
+    $                    ('batch-outcome').open = batch.results.some(result => result.status !== 'written');
+    $('batch-list').replaceChildren(...batch.results.map(result => element('li', `${result.title} · ${result.path}. ${result.status === 'written' ? 'Исправление подтверждено.' : `${result.status === 'skipped' ? 'Пропущено' : 'Ошибка'}. ${result.reason}`}`)),
+      ...batch.confirmed ? [element('li', 'Пакет можно отменить через историю Pixso.')] : []);
+  }
+  const frameSelect = $                   ('context-frame');
+  const previousFrame = frameSelect.value;
+  frameSelect.replaceChildren(...frames.map(frame => new Option(frame.name, frame.id)));
+  if (frames.some(frame => frame.id === previousFrame)) frameSelect.value = previousFrame;
+  $('contexts').hidden = !frames.length;
+  syncContext();
+  paintRows();
+  view('report');
+  $('result-title').focus();
+}
+
+$('sources-button').onclick = () => {
+  previous = current; view('sources');
+};
+$('sources-back').onclick = () => view(previous);
+$('run').onclick = () => {
+  choices.clear(); selected.clear(); batchJob = false;
+  busy('Подсчитываем слои');
+  send('run', {scope: document.querySelector                  ('input[name="scope"]:checked')?.value, platform: $                   ('start-platform').value, theme: $                   ('start-theme').value});
+};
+$('back').onclick = () => { message(); view('start'); requestSetup(); $('run').focus(); };
+$('apply').onclick = () => {
+  const requests = [...selected].filter(id => choices.has(id)).map(id => ({id, option: choices.get(id)}));
+  if (!requests.length) return;
+  batchJob = true;
+  busy('Применяем исправления');
+  $('secondary').hidden = false;
+  renderProgress({stage: 'Проверяем изменения', done: 0, total: requests.length}, true);
+  send('apply', {requests});
+};
+$('close-details').onclick = () => $                   ('details').close();
+$('details').addEventListener('close', () => {
+  const buttons = [...document.querySelectorAll                   ('[data-issue]')];
+  buttons.find(button => button.dataset.issue === activeDetail?.id)?.focus();
+});
+$('context-frame').onchange = syncContext;
+function requestSetup()       {
+  send('setup', {scope: document.querySelector                  ('input[name="scope"]:checked')?.value ?? 'page'});
+}
+$('set-context').onclick = () => {
+  busy('Подсчитываем слои');
+  send('context', {id: $                   ('context-frame').value, platform: $                   ('platform').value, theme: $                   ('theme').value});
+};
+$('export-all').onclick = () => {
+  exportJob = true;
+  $('export-download').hidden = true;
+  busy('Читаем список библиотек Pixso');
+  send('export-all');
+};
+$('export-download').onclick = () => {
+  if (!exported) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(exported.output, null, 2) + '\n'], {type: 'application/json'}));
+  const link = document.createElement('a'); link.href = url; link.download = exported.name;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+};
+
+window.addEventListener('message', event => {
+  if (event.source !== parent && event.source !== window.top) return;
+  const data = event.data?.pluginMessage ?? event.data;
+  if (!data || typeof data.type !== 'string') return;
+  if (data.type === 'progress') renderProgress(data.progress, batchJob);
+  if (data.type === 'batch-progress') renderProgress(data.progress, data.progress.stage === 'Проверяем изменения');
+  if (data.type === 'report') { batchJob = false; showReport(data.report, data.frames, data.context, data.batch); }
+  if (data.type === 'selection') {
+    const radio = document.querySelector                  ('input[value="frames"]') ;
+    radio.disabled = data.count === 0;
+    if (radio.disabled && radio.checked && current === 'start') document.querySelector                  ('input[value="page"]') .checked = true;
+    $('selection').textContent = data.count ? `Фреймов верхнего уровня: ${data.count}. Вложенные слои включены.` : 'В выделении нет фреймов';
+    if (current === 'start') requestSetup();
+  }
+  if (data.type === 'catalog') {
+    $('version').textContent = `Версия ${data.version}`;
+    const libraries            = data.libraries.filter((library         ) => library.generation !== 'legacy');
+    $('libraries').replaceChildren(...libraries.map(source => {
+      const row = element('li'); const coverage = data.coverage.find((item              ) => item.id === source.id);
+      row.append(safeLink(source.name, source.url), element('small', coverage?.reason ?? coverage?.status));
+      return row;
+    }));
+    $('doc-coverage').replaceChildren(...data.coverage.filter((row              ) => row.id.startsWith('site:')).map((row                                                              ) => {
+      const item = element('li'); item.append(safeLink(row.name, row.url), element('small', row.reason ?? row.status)); return item;
+    }));
+  }
+  if (data.type === 'exported') {
+    exportJob = false; exported = data; view('sources'); $('export-download').hidden = false;
+    message(data.summary ?? `Подготовлено ресурсов: ${data.output.resources.length}. ${data.output.gaps.join(' ')}`);
+  }
+  if (data.type === 'error') {
+    if (data.recovery) { view(exportJob ? 'sources' : findings.length ? 'report' : 'start'); exportJob = batchJob = false; }
+    message(data.text);
+  }
+});
+send('ready');
+dropdown('start-platform');
+dropdown('start-theme');
+</script>
+</body>
+</html>
