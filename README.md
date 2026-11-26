@@ -6,13 +6,13 @@
 
 № — Библиотека
 
-1 — Web — Components 01
+1 — Web Components 01
 
-2 — Web — Components 02
+2 — Web Components 02
 
-3 — Mobile — Components 01
+3 — Mobile Components 01
 
-4 — Mobile — Components 02
+4 — Mobile Components 02
 
 5 — Styles Next
 
@@ -20,9 +20,9 @@
 
 7 — Skeletons Next
 
-8 — Super — Infographics
+8 — Super Infographics
 
-9 — Super — Styles Infographics 
+9 — Super Styles Infographics 
 
 10 — Partners Buttons 
 
