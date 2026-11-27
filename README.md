@@ -11,3 +11,4 @@
 10. Styles
 11. Infographics
 12. Styles Infographics
+13. Typography
