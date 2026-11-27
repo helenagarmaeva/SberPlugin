@@ -1,0 +1,391 @@
+{
+  "format": "triplex-pixso-library",
+  "schema": 1,
+  "slot": 13,
+  "version": "triplex-site-2026-11-27",
+  "sourceUrl": "https://triplex-design.ru/ru/Super/Principles%20/typography",
+  "resources": [
+    {
+      "key": "triplex:typography:D1-S",
+      "name": "D1-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Display",
+          "style": "Semibold"
+        },
+        "fontSize": 32,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 40
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:H1-S",
+      "name": "H1-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Display",
+          "style": "Semibold"
+        },
+        "fontSize": 28,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 36
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:H2-S",
+      "name": "H2-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Display",
+          "style": "Semibold"
+        },
+        "fontSize": 24,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 32
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:H3-B",
+      "name": "H3-B",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Display",
+          "style": "Bold"
+        },
+        "fontSize": 20,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 28
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:H3-M",
+      "name": "H3-M",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Display",
+          "style": "Medium"
+        },
+        "fontSize": 20,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 28
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:H3-R",
+      "name": "H3-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Display",
+          "style": "Regular"
+        },
+        "fontSize": 20,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 28
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:S1-S",
+      "name": "S1-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Semibold"
+        },
+        "fontSize": 18,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 24
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:S2-S",
+      "name": "S2-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Semibold"
+        },
+        "fontSize": 16,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 20
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:S3-S",
+      "name": "S3-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Semibold"
+        },
+        "fontSize": 14,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 20
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:S3-S-C",
+      "name": "S3-S-C",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Semibold"
+        },
+        "fontSize": 14,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 16
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:S4-S",
+      "name": "S4-S",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Semibold"
+        },
+        "fontSize": 12,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 16
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:B1-R",
+      "name": "B1-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 18,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 24
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:B2-R",
+      "name": "B2-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 16,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 20
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:B3-R",
+      "name": "B3-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 14,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 20
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:B3-R-C",
+      "name": "B3-R-C",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 14,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 16
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:B4-R",
+      "name": "B4-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 12,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 16
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:C1-R",
+      "name": "C1-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 10,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 12
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:C2-R",
+      "name": "C2-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text",
+          "style": "Regular"
+        },
+        "fontSize": 8,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 10
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    },
+    {
+      "key": "triplex:typography:M1-R",
+      "name": "M1-R",
+      "kind": "TEXT",
+      "facts": {
+        "fontName": {
+          "family": "SB Sans Text Mono",
+          "style": "Regular"
+        },
+        "fontSize": 14,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 20
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        }
+      }
+    }
+  ],
+  "gaps": [],
+  "trackingSource": "По указанию пользователя: 0 px для всех стилей."
+}
